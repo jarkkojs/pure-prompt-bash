@@ -46,14 +46,14 @@ __pure_echo_git_remote_status() {
 		# do async
 		# FIXME: this async execution doesn't change pure_git_raw_remote_status. so remote status never changes in async mode
 		# FIXME: async mode takes as long as sync mode
-		pure_git_raw_remote_status=$(git status --porcelain=2 --branch | grep --only-matching --perl-regexp '\+\d+ \-\d+') &
+		pure_git_raw_remote_status=$(git status --porcelain=2 --branch | grep -E --only-matching '\+[0-9]+ -[0-9]+') &
 	else
 		# do sync
-		pure_git_raw_remote_status=$(git status --porcelain=2 --branch | grep --only-matching --perl-regexp '\+\d+ \-\d+')
+		pure_git_raw_remote_status=$(git status --porcelain=2 --branch | grep -E --only-matching '\+[0-9]+ -[0-9]+')
 	fi
 
 	# shape raw status and check unpulled commit
-	local readonly UNPULLED=$(echo ${pure_git_raw_remote_status} | grep --only-matching --perl-regexp '\-\d')
+	local readonly UNPULLED=$(echo "${pure_git_raw_remote_status}" | grep -E --only-matching '\-[0-9]+')
 	if [[ ${UNPULLED} != "-0" ]]; then
 		pure_git_unpulled=true
 	else
@@ -61,7 +61,7 @@ __pure_echo_git_remote_status() {
 	fi
 
 	# unpushed commit too
-	local readonly UNPUSHED=$(echo ${pure_git_raw_remote_status} | grep --only-matching --perl-regexp '\+\d')
+	local readonly UNPUSHED=$(echo "${pure_git_raw_remote_status}" | grep -E --only-matching '\+[0-9]+')
 	if [[ ${UNPUSHED} != "+0" ]]; then
 		pure_git_unpushed=true
 	else
